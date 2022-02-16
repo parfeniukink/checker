@@ -30,4 +30,6 @@ Enter
 
 
 ## Usage
-Got to `127.0.0.1:8000/` to the analytics or `127.0.0.1:8000/admin/` to access to admin panel
+Go to the `127.0.0.1:8000/` for analytics
+
+or to the`127.0.0.1:8000/admin/` for getting the admin panel access
