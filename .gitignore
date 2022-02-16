@@ -1,0 +1,17 @@
+# SQLite
+*.sqlite*
+
+# MAC OS
+.DS_Store
+
+
+# Celery
+celerybeat-schedule
+
+
+# ENV files
+.env
+env/
+venv/
+.env/
+env

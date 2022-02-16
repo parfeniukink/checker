@@ -1,0 +1,63 @@
+version: "3"
+
+services:
+  rabbit-mq:
+    image: rabbitmq:3-management-alpine
+    env_file: ".env"
+    expose:
+      - "5672"
+    ports:
+      - "5672:5672"
+
+  postgres:
+    image: postgres:13.3
+    env_file: ".env"
+    expose:
+      - "5432"
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  django: &django
+    stdin_open: true
+    tty: true
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+    image: checker_django
+    container_name: checker_django
+    env_file: ".env"
+    expose:
+      - "8000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - rabbit-mq
+    volumes:
+      - ./:/app/
+
+  celeryworker:
+    <<: *django
+    image: checker_celeryworker
+    container_name: checker_celeryworker
+    depends_on:
+      - postgres
+      - rabbit-mq
+    ports: []
+    command: bash -c "celery -A config worker -l INFO --concurrency 2"
+
+  celerybeat:
+    <<: *django
+    image: checker_celerybeat
+    container_name: checker_celerybeat
+    depends_on:
+      - rabbit-mq
+      - postgres
+    ports: []
+    command: bash -c "celery -A config beat -l INFO"
+volumes:
+  pg_data: {}
